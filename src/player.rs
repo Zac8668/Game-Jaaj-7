@@ -27,7 +27,7 @@ impl Player {
         let sprite = AnimatedSprite {
             animations,
             cur_animation: 0,
-            dur: 0.1,
+            dur: 0.2,
             playing: true,
             time: 0.
         };
