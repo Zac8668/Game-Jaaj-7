@@ -13,6 +13,8 @@ async fn main() {
     let mut player = Player::new(Vec2::new(10., 10.), &textures, 2., 10.);
 
     loop {
+        clear_background(DARKGRAY);
+
         player.update();
         player.draw();
 
