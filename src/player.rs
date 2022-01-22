@@ -1,5 +1,5 @@
 use macroquad::prelude::{
-    draw_texture_ex, get_frame_time, DrawTextureParams, Rect, Texture2D, WHITE,
+    draw_texture_ex, get_frame_time, DrawTextureParams, Rect, Texture2D, WHITE, KeyCode, is_key_down
 };
 
 use crate::textures::Textures;
@@ -9,10 +9,12 @@ pub struct Player {
     pub pos: Vec2,
     pub size: f32,
     pub sprite: AnimatedSprite,
+    pub speed: f32,
+    pub flipped: bool,
 }
 
 impl Player {
-    pub fn new(pos: Vec2, textures: &Textures, size: f32) -> Self {
+    pub fn new(pos: Vec2, textures: &Textures, size: f32, speed: f32) -> Self {
         let idle = Animation {
             cur_frame: 0,
             frames: 6,
@@ -32,14 +34,32 @@ impl Player {
             time: 0.
         };
 
-        Self { pos, size, sprite }
+        Self { pos, size, sprite, speed, flipped: false}
     }
 
     pub fn draw(&self) {
-        self.sprite.draw(&self.pos, &self.size);
+        self.sprite.draw(&self.pos, &self.size, &self.flipped);
+    }
+
+    pub fn moviment(&mut self) {
+        if is_key_down(KeyCode::D) && !is_key_down(KeyCode::A) {
+            self.pos.x += self.speed;
+            self.flipped = false;
+        }
+        else if is_key_down(KeyCode::A) && !is_key_down(KeyCode::D) {
+            self.pos.x -= self.speed;
+            self.flipped = true;
+        }
+        if is_key_down(KeyCode::S) && !is_key_down(KeyCode::W) {
+            self.pos.y += self.speed;
+        }
+        else if is_key_down(KeyCode::W) && !is_key_down(KeyCode::S) {
+            self.pos.y -= self.speed;
+        }
     }
 
     pub fn update(&mut self) {
+        self.moviment();
         self.sprite.update();
     }
 }
@@ -58,7 +78,7 @@ impl AnimatedSprite {
         self.animations[self.cur_animation].update(&mut self.time, &self.dur, &self.playing);
     }
 
-    pub fn draw(&self, pos: &Vec2, size: &f32) {
+    pub fn draw(&self, pos: &Vec2, size: &f32, flipped: &bool) {
         let animation = &self.animations[self.cur_animation];
 
         let params = DrawTextureParams {
@@ -67,6 +87,7 @@ impl AnimatedSprite {
                 animation.width as f32 * size,
                 animation.height as f32 * size,
             )),
+            flip_x: *flipped,
             ..Default::default()
         };
 

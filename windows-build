@@ -1,0 +1,5 @@
+#Make windows build
+
+cargo build --release --target x86_64-pc-windows-gnu
+cp target/x86_64-pc-windows-gnu/release/game-jaaj-7.exe ~/GitHub/Game-Jaaj-7/
+cargo run --release

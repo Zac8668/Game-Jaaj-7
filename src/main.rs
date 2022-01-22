@@ -10,7 +10,7 @@ use vecs::Vec2;
 #[macroquad::main("BasicShapes")]
 async fn main() {
     let textures = Textures::get().await;
-    let mut player = Player::new(Vec2::new(10., 10.), &textures, 2.);
+    let mut player = Player::new(Vec2::new(10., 10.), &textures, 2., 10.);
 
     loop {
         player.update();
