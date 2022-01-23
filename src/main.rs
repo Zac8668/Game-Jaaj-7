@@ -30,12 +30,12 @@ async fn main() {
 }
 
 fn edit_map(kind: &mut i8, map: &mut Map) {
-    if is_mouse_button_pressed(MouseButton::Left) {
+    if is_mouse_button_down(MouseButton::Left) {
         let x = (mouse_position().0 / map.size) as usize;
         let y = (mouse_position().1 / map.size) as usize;
 
         map.vec[y][x].kind = *kind as u8;
-    } else if is_mouse_button_pressed(MouseButton::Right) {
+    } else if is_mouse_button_down(MouseButton::Right) {
         let x = (mouse_position().0 / map.size) as usize;
         let y = (mouse_position().1 / map.size) as usize;
 
