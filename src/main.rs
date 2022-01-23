@@ -44,8 +44,8 @@ fn edit_map(kind: &mut i8, map: &mut Map) {
     *kind += mouse_wheel().1 as i8;
 
     if *kind > 5 {
-        *kind = 0;
-    } else if *kind < 0 {
+        *kind = 1;
+    } else if *kind < 1 {
         *kind = 5;
     }
 }
