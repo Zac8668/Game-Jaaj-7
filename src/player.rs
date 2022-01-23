@@ -21,10 +21,19 @@ impl Player {
             width: 26,
             height: 32,
             rect: Rect::new(0., 0., 26., 34.),
-            texture: textures.idle
+            texture: textures.player_idle
         };
 
-        let animations = vec![idle];
+        let walking = Animation {
+            cur_frame: 0,
+            frames: 2,
+            width: 26,
+            height: 32,
+            rect: Rect::new(0., 0., 26., 34.),
+            texture: textures.player_walk
+        };
+
+        let animations = vec![idle, walking];
 
         let sprite = AnimatedSprite {
             animations,
@@ -53,8 +62,15 @@ impl Player {
             _ => ()
         }
 
+        //fix double speed when moving diagonally
         if x.abs() > 0 && y.abs() > 0 {
             speed /= 1.5;
+        }
+
+        if x != 0 || y != 0 {
+            self.sprite.cur_animation = 1;
+        } else {
+            self.sprite.cur_animation = 0;
         }
 
         self.pos.x += x as f32 * speed;
