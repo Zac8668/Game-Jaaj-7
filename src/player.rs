@@ -42,20 +42,23 @@ impl Player {
     }
 
     pub fn moviment(&mut self) {
-        if is_key_down(KeyCode::D) && !is_key_down(KeyCode::A) {
-            self.pos.x += self.speed;
-            self.flipped = false;
+        let x = is_key_down(KeyCode::D) as i8 + -(is_key_down(KeyCode::A) as i8);
+        let y = is_key_down(KeyCode::S) as i8 + -(is_key_down(KeyCode::W) as i8);
+
+        let mut speed = self.speed;
+
+        match x {
+            x if x < 0 => self.flipped = true,
+            x if x > 0 => self.flipped = false,
+            _ => ()
         }
-        else if is_key_down(KeyCode::A) && !is_key_down(KeyCode::D) {
-            self.pos.x -= self.speed;
-            self.flipped = true;
+
+        if x.abs() > 0 && y.abs() > 0 {
+            speed /= 2.;
         }
-        if is_key_down(KeyCode::S) && !is_key_down(KeyCode::W) {
-            self.pos.y += self.speed;
-        }
-        else if is_key_down(KeyCode::W) && !is_key_down(KeyCode::S) {
-            self.pos.y -= self.speed;
-        }
+
+        self.pos.x += x as f32 * speed;
+        self.pos.y += y as f32 * speed;
     }
 
     pub fn update(&mut self) {
