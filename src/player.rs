@@ -54,7 +54,7 @@ impl Player {
         }
 
         if x.abs() > 0 && y.abs() > 0 {
-            speed /= 2.;
+            speed /= 1.5;
         }
 
         self.pos.x += x as f32 * speed;
