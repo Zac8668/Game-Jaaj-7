@@ -1,5 +1,6 @@
 use macroquad::prelude::{
-    draw_texture_ex, get_frame_time, DrawTextureParams, Rect, Texture2D, WHITE, KeyCode, is_key_down
+    draw_texture_ex, get_frame_time, is_key_down, DrawTextureParams, KeyCode, Rect, Texture2D,
+    WHITE,
 };
 
 use crate::textures::Textures;
@@ -21,7 +22,7 @@ impl Player {
             width: 26,
             height: 32,
             rect: Rect::new(0., 0., 26., 34.),
-            texture: textures.player_idle
+            texture: textures.player_idle,
         };
 
         let walking = Animation {
@@ -30,7 +31,7 @@ impl Player {
             width: 26,
             height: 32,
             rect: Rect::new(0., 0., 26., 34.),
-            texture: textures.player_walk
+            texture: textures.player_walk,
         };
 
         let animations = vec![idle, walking];
@@ -40,10 +41,16 @@ impl Player {
             cur_animation: 0,
             dur: 0.2,
             playing: true,
-            time: 0.
+            time: 0.,
         };
 
-        Self { pos, size, sprite, speed, flipped: false}
+        Self {
+            pos,
+            size,
+            sprite,
+            speed,
+            flipped: false,
+        }
     }
 
     pub fn draw(&self) {
@@ -59,7 +66,7 @@ impl Player {
         match x {
             x if x < 0 => self.flipped = true,
             x if x > 0 => self.flipped = false,
-            _ => ()
+            _ => (),
         }
 
         //fix double speed when moving diagonally
