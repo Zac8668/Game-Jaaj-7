@@ -1,7 +1,8 @@
 use std::fs;
 
-use macroquad::prelude::{draw_texture_ex, DrawTextureParams, Vec2, WHITE, Rect};
+use macroquad::prelude::{draw_texture_ex, DrawTextureParams, Rect, Vec2, WHITE};
 
+use crate::camera::Camera;
 use crate::textures::Textures;
 
 #[derive(Clone)]
@@ -18,14 +19,14 @@ impl Tile {
 
 pub struct Map {
     pub vec: Vec<Vec<Tile>>,
-    width: usize,
-    height: usize,
+    pub width: usize,
+    pub height: usize,
     pub size: f32,
 }
 
 impl Map {
     pub fn new(width: usize, height: usize, size: f32) -> Self {
-        let vec = vec![vec![Tile::new(0, false); width]; height];
+        let vec = vec![vec![Tile::new(1, false); width]; height];
 
         Map {
             vec,
@@ -60,19 +61,19 @@ impl Map {
         }
     }
 
-    pub fn draw(&self, textures: &Textures) {
+    pub fn draw(&self, textures: &Textures, camera: &Camera) {
         for (y, row) in self.vec.iter().enumerate() {
             for (x, tile) in row.iter().enumerate() {
                 let params = DrawTextureParams {
-                    dest_size: Some(Vec2::new(self.size, self.size)),
+                    dest_size: Some(Vec2::new(self.size * camera.zoom, self.size * camera.zoom)),
                     source: Some(Rect::new(tile.kind as f32 * 15., 0., 15., 15.)),
                     ..Default::default()
                 };
 
                 draw_texture_ex(
                     textures.floors,
-                    x as f32 * self.size,
-                    y as f32 * self.size,
+                    (x as f32 * self.size) * camera.zoom + camera.pos.x,
+                    (y as f32 * self.size) * camera.zoom + camera.pos.y,
                     WHITE,
                     params.clone(),
                 );
