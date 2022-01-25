@@ -13,7 +13,7 @@ use camera::Camera;
 
 #[macroquad::main("GameJaaj7")]
 async fn main() {
-    let mut map = Map::new(12, 12, 15. * 6.);
+    let mut map = Map::from_file("map.txt", 15. * 6.);
     let textures = Textures::get().await;
     let mut player = Player::new(Vec2::new(10., 10.), &textures, 2., 4.);
     let mut camera = Camera {
@@ -31,13 +31,12 @@ async fn main() {
         map.draw(&textures, &camera);
         player.draw(&camera);
         draw_icon(kind, &textures);
-        println!("{}", camera.zoom);
         next_frame().await
     }
 }
 
 fn edit_map(kind: &mut i8, map: &mut Map, camera: &mut Camera) {
-    let x = (((mouse_position().0 - camera.pos.x) / camera.zoom ) / map.size)  as usize;
+    let x = (((mouse_position().0 - camera.pos.x) / camera.zoom) / map.size) as usize;
     let y = (((mouse_position().1 - camera.pos.y) / camera.zoom) / map.size) as usize;
     if x < map.width && y < map.height {
         if is_mouse_button_down(MouseButton::Left) {
@@ -45,6 +44,10 @@ fn edit_map(kind: &mut i8, map: &mut Map, camera: &mut Camera) {
         } else if is_mouse_button_down(MouseButton::Right) {
             map.vec[y][x].kind = 0;
         }
+    }
+
+    if is_key_pressed(KeyCode::P) {
+        map.to_file();
     }
 
     if is_key_down(KeyCode::LeftShift) {

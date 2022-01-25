@@ -1,6 +1,6 @@
-use std::fs;
-
 use macroquad::prelude::{draw_texture_ex, DrawTextureParams, Rect, Vec2, WHITE};
+use std::fs;
+use std::io::Write;
 
 use crate::camera::Camera;
 use crate::textures::Textures;
@@ -59,6 +59,21 @@ impl Map {
             vec,
             size,
         }
+    }
+
+    pub fn to_file(&self) {
+        let mut map = String::new();
+        for row in &self.vec {
+            for tile in row {
+                map += &tile.kind.to_string();
+            }
+            map += "\n";
+        }
+        println!("{}", map);
+
+        let path = "map.txt";
+        let mut output = fs::File::create(path).unwrap();
+        write!(output, "{}", map).unwrap();
     }
 
     pub fn draw(&self, textures: &Textures, camera: &Camera) {
