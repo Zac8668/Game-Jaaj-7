@@ -169,12 +169,38 @@ impl Player {
             } else {
                 self.sprite.cur_animation = 0;
             }
+            //collision
             let size = [
                 self.sprite.animations[self.sprite.cur_animation].width as f32,
                 self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
             ];
-            self.pos.x += x as f32 * speed;
-            self.pos.y += y as f32 * speed;
+
+            let next_x = self.pos.x + x as f32 * speed + if x > 0 {size[0] * 2.} else {0.};
+            let in_x: bool;
+            let x1 = (next_x / walls.size) as usize;
+            let y1 = (self.pos.y / walls.size) as usize;
+            let y2 = ((self.pos.y + size[1]) / walls.size) as usize;
+
+            in_x = x1 < walls.width
+                && ((y1 < walls.height && walls.vec[y1][x1].kind != 0)
+                    || (y2 < walls.height && walls.vec[y2][x1].kind != 0));
+
+            let next_y = self.pos.y + y as f32 * speed + if y > 0 {size[1]} else {0.};
+            let in_y: bool;
+            let y1 = (next_y / walls.size) as usize;
+            let x1 = (self.pos.x / walls.size) as usize;
+            let x2 = ((self.pos.x + size[0]) / walls.size) as usize;
+
+            in_y = y1 < walls.height
+                && ((x1 < walls.width && walls.vec[y1][x1].kind != 0)
+                    || (x2 < walls.width && walls.vec[y1][x2].kind != 0));
+
+            if !in_x {
+                self.pos.x += x as f32 * speed;
+            }
+            if !in_y {
+                self.pos.y += y as f32 * speed;
+            }
         } else {
             camera.pos.x -= x as f32 * 4.;
             camera.pos.y -= y as f32 * 4.;
