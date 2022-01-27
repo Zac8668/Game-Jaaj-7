@@ -4,8 +4,9 @@ use macroquad::prelude::{
 };
 
 use crate::camera::Camera;
+use crate::map::*;
 use crate::textures::Textures;
-use crate::vecs::Vec2;
+use crate::vecs::*;
 
 pub struct Player {
     pub pos: Vec2,
@@ -54,12 +55,99 @@ impl Player {
         }
     }
 
-    pub fn draw(&self, camera: &Camera) {
+    pub fn draw(&self, textures: &Textures, camera: &Camera, walls: &Map) {
+        let size = self.size * self.sprite.animations[self.sprite.cur_animation].height as f32;
+
+        let pos = [
+            ((self.pos.x / walls.size) as usize - 1),
+            (((self.pos.y + size) / walls.size) as usize - 1),
+        ];
+
+        for y in 0..3 {
+            for x in 0..3 {
+                let mut kind: f32;
+                if pos[0] + x < walls.width && pos[1] + y < walls.height {
+                    kind = walls.vec[pos[1] as usize + y][pos[0] as usize + x].kind as f32;
+                } else {
+                    kind = 0.;
+                }
+                let params2 = DrawTextureParams {
+                    dest_size: Some(macroquad::prelude::Vec2::new(
+                        walls.size * camera.zoom,
+                        (walls.size - 3. * 6.) * camera.zoom,
+                    )),
+                    source: Some(Rect::new(kind * 15., 12., 15., 12.)),
+                    ..Default::default()
+                };
+
+                draw_texture_ex(
+                    textures.walls,
+                    (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
+                    ((pos[1] + y) as f32 * walls.size + 3. * 6.) * camera.zoom + camera.pos.y,
+                    WHITE,
+                    params2,
+                );
+            }
+        }
+
         self.sprite
             .draw(&self.pos, &self.size, &self.flipped, camera);
+
+        for y in 0..3 {
+            for x in 0..3 {
+                let kind: f32;
+                if pos[0] + x < walls.width && pos[1] + y < walls.height {
+                    kind = walls.vec[pos[1] as usize + y][pos[0] as usize + x].kind as f32;
+                } else {
+                    kind = 0.;
+                }
+                let kind2: f32;
+                if pos[0] + x < walls.width && pos[1] + y + 1 < walls.height {
+                    kind2 = walls.vec[pos[1] as usize + y + 1][pos[0] as usize + x].kind as f32;
+                } else {
+                    kind2 = 0.;
+                }
+                let params1 = DrawTextureParams {
+                    dest_size: Some(macroquad::prelude::Vec2::new(
+                        walls.size * camera.zoom,
+                        (walls.size - 3. * 6.) * camera.zoom,
+                    )),
+                    source: Some(Rect::new(kind * 15., 0., 15., 12.)),
+                    ..Default::default()
+                };
+
+                draw_texture_ex(
+                    textures.walls,
+                    (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
+                    ((pos[1] + y) as f32 * walls.size - 9. * 6.) * camera.zoom + camera.pos.y,
+                    WHITE,
+                    params1,
+                );
+
+                if kind2 != 0. {
+                    let params1 = DrawTextureParams {
+                        dest_size: Some(macroquad::prelude::Vec2::new(
+                            walls.size * camera.zoom,
+                            (walls.size - 3. * 6.) * camera.zoom,
+                        )),
+                        source: Some(Rect::new(kind2 * 15., 0., 15., 12.)),
+                        ..Default::default()
+                    };
+
+                    draw_texture_ex(
+                        textures.walls,
+                        (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
+                        ((pos[1] + y) as f32 * walls.size - 9. * 6. + walls.size) * camera.zoom
+                            + camera.pos.y,
+                        WHITE,
+                        params1,
+                    );
+                }
+            }
+        }
     }
 
-    pub fn moviment(&mut self, camera: &mut Camera) {
+    pub fn movement(&mut self, camera: &mut Camera, walls: &Map) {
         let x = is_key_down(KeyCode::D) as i8 + -(is_key_down(KeyCode::A) as i8);
         let y = is_key_down(KeyCode::S) as i8 + -(is_key_down(KeyCode::W) as i8);
 
@@ -81,17 +169,21 @@ impl Player {
             } else {
                 self.sprite.cur_animation = 0;
             }
-
+            let size = [
+                self.sprite.animations[self.sprite.cur_animation].width as f32,
+                self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
+            ];
             self.pos.x += x as f32 * speed;
             self.pos.y += y as f32 * speed;
         } else {
             camera.pos.x -= x as f32 * 4.;
             camera.pos.y -= y as f32 * 4.;
+            self.sprite.cur_animation = 0;
         }
     }
 
-    pub fn update(&mut self, camera: &mut Camera) {
-        self.moviment(camera);
+    pub fn update(&mut self, camera: &mut Camera, walls: &Map) {
+        self.movement(camera, walls);
         self.sprite.update();
     }
 }
