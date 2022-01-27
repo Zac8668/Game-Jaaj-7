@@ -12,10 +12,10 @@ use camera::Camera;
 
 #[macroquad::main("GameJaaj7")]
 async fn main() {
-    //let mut floors = Map::from_file("assets/floors.txt", 15. * 6., false);
-    //let mut walls = Map::from_file("assets/walls.txt", 15. * 6., true);
-    let mut floors = Map::new(10, 10, 15. * 6., false);
-    let mut walls = Map::new(10, 10, 15. * 6., true);
+    let mut floors = Map::from_file("assets/floors.txt", 15. * 6., false);
+    let mut walls = Map::from_file("assets/walls.txt", 15. * 6., true);
+    //let mut floors = Map::new(10, 10, 15. * 6., false);
+    //let mut walls = Map::new(10, 10, 15. * 6., true);
     let textures = Textures::get().await;
 
     let mut player = Player::new(Vec2::new(900., 900.), &textures, 2., 4.);
