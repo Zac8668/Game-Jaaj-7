@@ -12,8 +12,8 @@ use camera::Camera;
 
 #[macroquad::main("GameJaaj7")]
 async fn main() {
-    let mut floors = Map::from_file("floors.txt", 15. * 6., false);
-    let mut walls = Map::from_file("walls.txt", 15. * 6., true);
+    let mut floors = Map::from_file("assets/floors.txt", 15. * 6., false);
+    let mut walls = Map::from_file("assets/walls.txt", 15. * 6., true);
 
     let textures = Textures::get().await;
 
