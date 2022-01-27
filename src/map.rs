@@ -37,8 +37,8 @@ impl Map {
         }
     }
 
-    pub fn from_file(path: &str, size: f32, wall: bool) -> Self {
-        let string = fs::read_to_string(path).unwrap();
+    pub async fn from_file(path: &str, size: f32, wall: bool) -> Self {
+        let string = macroquad::file::load_string(path).await.unwrap();
         let mut vec: Vec<Vec<Tile>> = Vec::new();
         let mut row: Vec<Tile> = Vec::new();
         for c in string.chars() {
