@@ -65,7 +65,7 @@ impl Player {
 
         for y in 0..3 {
             for x in 0..3 {
-                let mut kind: f32;
+                let kind: f32;
                 if pos[0] + x < walls.width && pos[1] + y < walls.height {
                     kind = walls.vec[pos[1] as usize + y][pos[0] as usize + x].kind as f32;
                 } else {
@@ -175,7 +175,7 @@ impl Player {
                 self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
             ];
 
-            let next_x = self.pos.x + x as f32 * speed + if x > 0 {size[0] * 2.} else {0.};
+            let next_x = self.pos.x + x as f32 * speed + if x > 0 { size[0] * 2. } else { 0. };
             let in_x: bool;
             let x1 = (next_x / walls.size) as usize;
             let y1 = (self.pos.y / walls.size) as usize;
@@ -185,7 +185,7 @@ impl Player {
                 && ((y1 < walls.height && walls.vec[y1][x1].kind != 0)
                     || (y2 < walls.height && walls.vec[y2][x1].kind != 0));
 
-            let next_y = self.pos.y + y as f32 * speed + if y > 0 {size[1]} else {0.};
+            let next_y = self.pos.y + y as f32 * speed + if y > 0 { size[1] } else { 0. };
             let in_y: bool;
             let y1 = (next_y / walls.size) as usize;
             let x1 = (self.pos.x / walls.size) as usize;

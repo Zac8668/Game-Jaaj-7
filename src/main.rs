@@ -1,6 +1,4 @@
 use macroquad::prelude::*;
-use std::env;
-
 mod textures;
 use textures::*;
 mod player;
@@ -75,7 +73,13 @@ fn edit_map(
         *wall = !*wall;
     }
 
-    let scroll = if env::consts::OS == "windows" {mouse_wheel().1 / 4.} else {mouse_wheel().1};
+    let scroll = if mouse_wheel().1 > 0. {
+        1.
+    } else if mouse_wheel().1 < 0. {
+        -1.
+    } else {
+        0.
+    };
     if is_key_down(KeyCode::LeftShift) {
         camera.zoom += scroll / 10.;
     } else {
