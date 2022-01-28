@@ -17,7 +17,6 @@ async fn main() {
     //let mut floors = Map::new(10, 10, 15. * 6., false);
     //let mut walls = Map::new(10, 10, 15. * 6., true);
     let textures = Textures::get().await;
-
     let mut player = Player::new(Vec2::new(900., 900.), &textures, 2., 4.);
     let mut camera = Camera {
         pos: Vec2::new(0., 0.),
