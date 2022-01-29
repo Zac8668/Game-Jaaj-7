@@ -5,13 +5,14 @@ use macroquad::prelude::{screen_height, screen_width};
 pub struct Camera {
     pub pos: Vec2,
     pub zoom: f32,
+    pub speed: Vec2,
 }
 
 impl Camera {
     pub fn update(&mut self, player: &Player) {
-        /*let dist = 5.0;
+        let dist = 5.0;
         let max_dist = dist * 3.0;
-        let speed_x = -player.speed * player.dir[0] as f32;
+        /*let speed_x = -player.speed * player.dir[0] as f32;
         let speed_y = -player.speed * player.dir[1] as f32;
 
         let mut pos = Vec2::new(
@@ -28,10 +29,27 @@ impl Camera {
         } else if pos.y.abs() > max_dist {
             self.pos.y += speed_y;
         } */
+
+        let mut speed = player.speed;
+
+        //fix double speed when moving diagonally
+        if player.dir[0].abs() > 0 && player.dir[1].abs() > 0 {
+            speed /= 1.5;
+        }
+
+        self.speed.x -= speed * player.dir[0] as f32;
+        self.speed.y -= speed * player.dir[1] as f32;
+
+        if self.speed.x.abs() > 50. {
+            self.speed.x = 50.;
+        }
+        if self.speed.y.abs() > 50. {
+            self.speed.y = 50.;
+        }
+
         self.pos = Vec2::new(
-            -player.pos.x + screen_width() / 2. * self.zoom,
-            -player.pos.y + screen_height() / 2. * self.zoom,
+            -player.pos.x * self.zoom + screen_width() / 2. + self.speed.x,
+            -player.pos.y * self.zoom + screen_height() / 2. + self.speed.y,
         );
-        println!("{} {}", self.pos.x, self.pos.y);
     }
 }
