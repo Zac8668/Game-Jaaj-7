@@ -207,10 +207,7 @@ impl Map {
                     let kind = (tile.kind - n_floors) as usize;
 
                     if kind < self.water.len() {
-                        let pos = Vec2::new(
-                            x as f32 * self.size,
-                            y as f32 * self.size,
-                        );
+                        let pos = Vec2::new(x as f32 * self.size, y as f32 * self.size);
                         self.water[kind].draw(&pos, &6., &false, camera);
                     }
                 }

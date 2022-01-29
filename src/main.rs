@@ -24,19 +24,69 @@ async fn main() {
     };
     let mut kind = 1;
     let mut wall = false;
+    let mut scene = 0;
+    let mut exit = false;
 
     loop {
-        in_game(
-            &mut kind,
-            &mut walls,
-            &mut floors,
-            &mut camera,
-            &textures,
-            &mut wall,
-            &mut player,
-        );
+        match scene {
+            0 => menu(&textures, &mut scene, &mut exit),
+            1 => in_game(
+                &mut kind,
+                &mut walls,
+                &mut floors,
+                &mut camera,
+                &textures,
+                &mut wall,
+                &mut player,
+            ),
+            _ => (),
+        };
 
+        if exit {
+            break
+        }
         next_frame().await
+    }
+}
+
+fn menu(textures: &Textures, scene: &mut i32, exit: &mut bool) {
+    draw_texture(textures.menu_art, 0., 0., WHITE);
+
+    let new_pos = Vec2::new(500., 200.);
+    let new_x = mouse_position().0 - new_pos.x;
+    let new_y = mouse_position().1 - new_pos.y;
+    let new_in = new_x < textures.new_game.width()
+        && new_x > 0.
+        && new_y > 0.
+        && new_y < textures.new_game.height();
+    draw_texture(
+        textures.new_game,
+        new_pos.x,
+        new_pos.y,
+        if new_in { LIGHTGRAY } else { WHITE },
+    );
+
+    let exit_pos = Vec2::new(
+        new_pos.x + textures.new_game.width() / 2. - textures.exit.width() / 2.,
+        280.,
+    );
+    let exit_x = mouse_position().0 - exit_pos.x;
+    let exit_y = mouse_position().1 - exit_pos.y;
+    let exit_in = exit_x < textures.exit.width()
+        && exit_x > 0.
+        && exit_y > 0.
+        && exit_y < textures.exit.height();
+    draw_texture(
+        textures.exit,
+        exit_pos.x,
+        exit_pos.y,
+        if exit_in { LIGHTGRAY } else { WHITE },
+    );
+
+    if new_in && is_mouse_button_pressed(MouseButton::Left) {
+        *scene = 1;
+    } else if exit_in && is_mouse_button_pressed(MouseButton::Left) {
+        *exit = true;
     }
 }
 
@@ -109,14 +159,20 @@ fn draw_icon(kind: i8, textures: &Textures, wall: &bool, floor: &Map) {
                 source: Some(Rect::new(n as f32 * 15., 0., 15., 15.)),
                 ..Default::default()
             };
-            draw_texture_ex(floor.water[n].animations[0].texture, 10., 10., WHITE, params);
+            draw_texture_ex(
+                floor.water[n].animations[0].texture,
+                10.,
+                10.,
+                WHITE,
+                params,
+            );
         } else {
-                    let params = DrawTextureParams {
-            dest_size: Some(macroquad::prelude::Vec2::new(30., 30.)),
-            source: Some(Rect::new(kind as f32 * 15., 0., 15., 15.)),
-            ..Default::default()
-        };
-        draw_texture_ex(textures.floors, 10., 10., WHITE, params);
+            let params = DrawTextureParams {
+                dest_size: Some(macroquad::prelude::Vec2::new(30., 30.)),
+                source: Some(Rect::new(kind as f32 * 15., 0., 15., 15.)),
+                ..Default::default()
+            };
+            draw_texture_ex(textures.floors, 10., 10., WHITE, params);
         }
     }
 }

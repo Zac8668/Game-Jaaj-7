@@ -7,6 +7,12 @@ pub struct Textures {
     pub floors: Texture2D,
     pub water_1: Texture2D,
     pub water_2: Texture2D,
+    pub menu_art: Texture2D,
+    pub exit: Texture2D,
+    pub new_game: Texture2D,
+    pub quadrinho_1: Texture2D,
+    pub quadrinho_2: Texture2D,
+    pub quadrinho_3: Texture2D,
 }
 
 impl Textures {
@@ -23,8 +29,18 @@ impl Textures {
         floors.set_filter(filter);
         let water_1 = load_texture("assets/tiles/water_sheet.png").await.unwrap();
         water_1.set_filter(filter);
-        let water_2 = load_texture("assets/tiles/water_sprite_sheet.png").await.unwrap();
+        let water_2 = load_texture("assets/tiles/water_sprite_sheet.png")
+            .await
+            .unwrap();
         water_2.set_filter(filter);
+
+        let menu_art = load_texture("assets/menu/menu_art.png").await.unwrap();
+        let exit = load_texture("assets/menu/exit.png").await.unwrap();
+        let new_game = load_texture("assets/menu/new_game.png").await.unwrap();
+
+        let quadrinho_1 = load_texture("assets/menu/quadrinho_1.png").await.unwrap();
+        let quadrinho_2 = load_texture("assets/menu/quadrinho_2.png").await.unwrap();
+        let quadrinho_3 = load_texture("assets/menu/quadrinho_3.png").await.unwrap();
 
         Textures {
             player_idle,
@@ -33,6 +49,12 @@ impl Textures {
             floors,
             water_1,
             water_2,
+            menu_art,
+            exit,
+            new_game,
+            quadrinho_1,
+            quadrinho_2,
+            quadrinho_3,
         }
     }
 }
