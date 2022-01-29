@@ -6,30 +6,11 @@ pub struct Camera {
     pub pos: Vec2,
     pub zoom: f32,
     pub speed: Vec2,
+    pub speed_limit: Vec2
 }
 
 impl Camera {
     pub fn update(&mut self, player: &Player) {
-        let dist = 5.0;
-        let max_dist = dist * 3.0;
-        /*let speed_x = -player.speed * player.dir[0] as f32;
-        let speed_y = -player.speed * player.dir[1] as f32;
-
-        let mut pos = Vec2::new(
-            player.pos.x - self.pos.x + player.real_size[0],
-            player.pos.y - self.pos.y + player.real_size[1],
-        ); //player pos relative to the camera
-        if pos.x.abs() > dist && pos.x.abs() < max_dist {
-            self.pos.x += speed_x * (pos.x.abs() / max_dist);
-        } else if pos.x.abs() > max_dist {
-            self.pos.x += speed_x;
-        }
-        if pos.y.abs() > dist && pos.y.abs() < max_dist {
-            self.pos.y += speed_y * (pos.y.abs() / max_dist);
-        } else if pos.y.abs() > max_dist {
-            self.pos.y += speed_y;
-        } */
-
         let mut speed = player.speed;
 
         //fix double speed when moving diagonally
@@ -40,12 +21,22 @@ impl Camera {
         self.speed.x -= speed * player.dir[0] as f32;
         self.speed.y -= speed * player.dir[1] as f32;
 
-        if self.speed.x.abs() > 50. {
-            self.speed.x = 50.;
+        if self.speed.x.abs() > self.speed_limit.x {
+            let mut mult = (self.speed.x > 0.) as i8;
+            if mult == 0 {
+                mult = -1;
+            }
+            self.speed.x = self.speed_limit.x * mult as f32;
         }
-        if self.speed.y.abs() > 50. {
-            self.speed.y = 50.;
+        if self.speed.y.abs() > self.speed_limit.y {
+            let mut mult = (self.speed.y > 0.) as i8;
+            if mult == 0 {
+                mult = -1;
+            }
+            self.speed.y = self.speed_limit.y * mult as f32;
         }
+
+        
 
         self.pos = Vec2::new(
             -player.pos.x * self.zoom + screen_width() / 2. + self.speed.x,
