@@ -21,6 +21,7 @@ async fn main() {
     let mut camera = Camera {
         pos: Vec2::new(90., 90.),
         zoom: 1.,
+        speed: Vec2::new(0., 0.),
     };
     let mut kind = 1;
     let mut wall = false;
@@ -43,7 +44,7 @@ async fn main() {
         };
 
         if exit {
-            break
+            break;
         }
         next_frame().await
     }

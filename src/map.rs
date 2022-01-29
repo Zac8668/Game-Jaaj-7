@@ -158,7 +158,11 @@ impl Map {
         }
         println!("{}", map);
 
-        let path = if self.wall { "walls.txt" } else { "floors.txt" };
+        let path = if self.wall {
+            "assets/world-data/walls.txt"
+        } else {
+            "assets/world-data/floors.txt"
+        };
         let mut output = fs::File::create(path).unwrap();
         write!(output, "{}", map).unwrap();
     }
