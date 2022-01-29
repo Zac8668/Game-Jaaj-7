@@ -11,13 +11,13 @@ impl Textures {
     pub async fn get() -> Self {
         let filter = FilterMode::Nearest;
 
-        let player_idle = load_texture("assets/idle.png").await.unwrap();
+        let player_idle = load_texture("assets/player/idle.png").await.unwrap();
         player_idle.set_filter(filter);
-        let player_walk = load_texture("assets/walking.png").await.unwrap();
+        let player_walk = load_texture("assets/player/walking.png").await.unwrap();
         player_walk.set_filter(filter);
-        let walls = load_texture("assets/walls.png").await.unwrap();
+        let walls = load_texture("assets/tiles/walls.png").await.unwrap();
         walls.set_filter(filter);
-        let floors = load_texture("assets/floors.png").await.unwrap();
+        let floors = load_texture("assets/tiles/floors.png").await.unwrap();
         floors.set_filter(filter);
 
         Textures {

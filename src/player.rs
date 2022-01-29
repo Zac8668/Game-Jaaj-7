@@ -14,6 +14,8 @@ pub struct Player {
     pub sprite: AnimatedSprite,
     pub speed: f32,
     pub flipped: bool,
+    pub real_size: Vec<f32>,
+    pub dir: Vec<i8>,
 }
 
 impl Player {
@@ -39,7 +41,7 @@ impl Player {
         let animations = vec![idle, walking];
 
         let sprite = AnimatedSprite {
-            animations,
+            animations: animations.clone(),
             cur_animation: 0,
             dur: 0.2,
             playing: true,
@@ -52,17 +54,22 @@ impl Player {
             sprite,
             speed,
             flipped: false,
+            real_size: vec![
+                animations[0].width as f32,
+                size * animations[0].height as f32,
+            ],
+            dir: vec![0, 0]
         }
     }
 
-    pub fn draw(&self, textures: &Textures, camera: &Camera, walls: &Map) {
+    pub fn draw(&self, textures: &Textures, camera: &mut Camera, walls: &Map) {
         let size = self.size * self.sprite.animations[self.sprite.cur_animation].height as f32;
-
         let pos = [
             ((self.pos.x / walls.size) as usize - 1),
             (((self.pos.y + size) / walls.size) as usize - 1),
         ];
 
+        //draw walls close to player
         for y in 0..3 {
             for x in 0..3 {
                 let kind: f32;
@@ -90,9 +97,11 @@ impl Player {
             }
         }
 
+        //draw player
         self.sprite
             .draw(&self.pos, &self.size, &self.flipped, camera);
 
+        //draw walls close to player
         for y in 0..3 {
             for x in 0..3 {
                 let kind: f32;
@@ -150,7 +159,7 @@ impl Player {
     pub fn movement(&mut self, camera: &mut Camera, walls: &Map) {
         let x = is_key_down(KeyCode::D) as i8 + -(is_key_down(KeyCode::A) as i8);
         let y = is_key_down(KeyCode::S) as i8 + -(is_key_down(KeyCode::W) as i8);
-
+        self.dir = vec![x, y];
         let mut speed = self.speed;
 
         //fix double speed when moving diagonally
@@ -209,6 +218,10 @@ impl Player {
     }
 
     pub fn update(&mut self, camera: &mut Camera, walls: &Map) {
+        self.real_size = vec![
+            self.sprite.animations[self.sprite.cur_animation].width as f32,
+            self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
+        ];
         self.movement(camera, walls);
         self.sprite.update();
     }
@@ -251,6 +264,7 @@ impl AnimatedSprite {
     }
 }
 
+#[derive(Clone)]
 struct Animation {
     texture: Texture2D,
     width: usize,
