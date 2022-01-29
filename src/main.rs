@@ -22,6 +22,7 @@ async fn main() {
         pos: Vec2::new(90., 90.),
         zoom: 1.,
         speed: Vec2::new(0., 0.),
+        speed_limit: Vec2::new(50., 20.)
     };
     let mut kind = 1;
     let mut wall = false;
@@ -191,7 +192,7 @@ fn in_game(
     edit_map(kind, walls, floors, camera, textures, wall);
     player.update(camera, walls);
     floors.update();
-    //camera.update(player);
+    camera.update(player);
 
     floors.draw(textures, camera);
     walls.draw(textures, camera);
