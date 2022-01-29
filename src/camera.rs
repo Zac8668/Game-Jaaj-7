@@ -18,8 +18,8 @@ impl Camera {
             speed /= 1.5;
         }
 
-        self.speed.x -= speed * player.dir[0] as f32;
-        self.speed.y -= speed * player.dir[1] as f32;
+        self.speed.x -= speed * player.dir[0] as f32 / 2.;
+        self.speed.y -= speed * player.dir[1] as f32 / 2.;
 
         if self.speed.x.abs() > self.speed_limit.x {
             let mut mult = (self.speed.x > 0.) as i8;
@@ -36,7 +36,29 @@ impl Camera {
             self.speed.y = self.speed_limit.y * mult as f32;
         }
 
-        
+        if player.dir[0] == 0 && self.speed.x > 0.{
+            self.speed.x -= speed / 3.;
+            if self.speed.x < 0. {
+                self.speed.x = 0.;
+            } 
+        } else if player.dir[0] == 0 && self.speed.x < 0.{
+            self.speed.x += speed / 3.;
+            if self.speed.x > 0. {
+                self.speed.x = 0.;
+            } 
+        }
+
+        if player.dir[1] == 0 && self.speed.y > 0.{
+            self.speed.y -= speed / 3.;
+            if self.speed.y < 0. {
+                self.speed.y = 0.;
+            } 
+        } else if player.dir[1] == 0 && self.speed.y < 0.{
+            self.speed.y += speed / 3.;
+            if self.speed.y > 0. {
+                self.speed.y = 0.;
+            } 
+        }
 
         self.pos = Vec2::new(
             -player.pos.x * self.zoom + screen_width() / 2. + self.speed.x,
