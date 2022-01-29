@@ -36,6 +36,8 @@ impl Camera {
             self.speed.y = self.speed_limit.y * mult as f32;
         }
 
+        
+
         self.pos = Vec2::new(
             -player.pos.x * self.zoom + screen_width() / 2. + self.speed.x,
             -player.pos.y * self.zoom + screen_height() / 2. + self.speed.y,
