@@ -1,6 +1,6 @@
 use crate::player::Player;
 use crate::vecs::Vec2;
-use macroquad::prelude::{screen_width, screen_height};
+use macroquad::prelude::{screen_height, screen_width};
 
 pub struct Camera {
     pub pos: Vec2,
@@ -28,7 +28,10 @@ impl Camera {
         } else if pos.y.abs() > max_dist {
             self.pos.y += speed_y;
         } */
-        self.pos = Vec2::new(-player.pos.x + screen_width() / 2. * self.zoom, -player.pos.y + screen_height() / 2. * self.zoom);
+        self.pos = Vec2::new(
+            -player.pos.x + screen_width() / 2. * self.zoom,
+            -player.pos.y + screen_height() / 2. * self.zoom,
+        );
         println!("{} {}", self.pos.x, self.pos.y);
     }
 }

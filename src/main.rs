@@ -13,35 +13,29 @@ use camera::Camera;
 #[macroquad::main("GameJaaj7")]
 async fn main() {
     //add loading screen here
-    let mut floors = Map::from_file("assets/world-data/floors.txt", 15. * 6., false).await;
-    let mut walls = Map::from_file("assets/world-data/walls.txt", 15. * 6., true).await;
     let textures = Textures::get().await;
+    let mut floors =
+        Map::from_file("assets/world-data/floors.txt", 15. * 6., false, &textures).await;
+    let mut walls = Map::from_file("assets/world-data/walls.txt", 15. * 6., true, &textures).await;
     let mut player = Player::new(Vec2::new(0., 0.), &textures, 2., 8.);
     let mut camera = Camera {
         pos: Vec2::new(90., 90.),
         zoom: 1.,
     };
-
-    let mut kind = 0;
+    let mut kind = 1;
     let mut wall = false;
 
     loop {
-        clear_background(DARKGRAY);
-        edit_map(
+        in_game(
             &mut kind,
             &mut walls,
             &mut floors,
             &mut camera,
             &textures,
             &mut wall,
+            &mut player,
         );
-        player.update(&mut camera, &walls);
-        //camera.update(&player);
 
-        floors.draw(&textures, &camera);
-        walls.draw(&textures, &camera);
-        player.draw(&textures, &mut camera, &walls);
-        draw_icon(kind, &textures, &wall);
         next_frame().await
     }
 }
@@ -92,14 +86,14 @@ fn edit_map(
         (textures.floors.width() / (map.size / 6.)) as i8
     };
 
-    if *kind > n - 1 {
+    if *kind > n + 1 {
         *kind = 1;
     } else if *kind < 1 {
-        *kind = n - 1;
+        *kind = n + 1;
     }
 }
 
-fn draw_icon(kind: i8, textures: &Textures, wall: &bool) {
+fn draw_icon(kind: i8, textures: &Textures, wall: &bool, floor: &Map) {
     if *wall {
         let params = DrawTextureParams {
             dest_size: Some(macroquad::prelude::Vec2::new(30., 48.)),
@@ -108,11 +102,42 @@ fn draw_icon(kind: i8, textures: &Textures, wall: &bool) {
         };
         draw_texture_ex(textures.walls, 10., 10., WHITE, params);
     } else {
-        let params = DrawTextureParams {
+        let n = (kind - (textures.floors.width() / 15.) as i8) as usize;
+        if n < floor.water.len() {
+            let params = DrawTextureParams {
+                dest_size: Some(macroquad::prelude::Vec2::new(30., 30.)),
+                source: Some(Rect::new(n as f32 * 15., 0., 15., 15.)),
+                ..Default::default()
+            };
+            draw_texture_ex(floor.water[n].animations[0].texture, 10., 10., WHITE, params);
+        } else {
+                    let params = DrawTextureParams {
             dest_size: Some(macroquad::prelude::Vec2::new(30., 30.)),
             source: Some(Rect::new(kind as f32 * 15., 0., 15., 15.)),
             ..Default::default()
         };
         draw_texture_ex(textures.floors, 10., 10., WHITE, params);
+        }
     }
+}
+
+fn in_game(
+    kind: &mut i8,
+    walls: &mut Map,
+    floors: &mut Map,
+    camera: &mut Camera,
+    textures: &Textures,
+    wall: &mut bool,
+    player: &mut Player,
+) {
+    clear_background(DARKGRAY);
+    edit_map(kind, walls, floors, camera, textures, wall);
+    player.update(camera, walls);
+    floors.update();
+    //camera.update(player);
+
+    floors.draw(textures, camera);
+    walls.draw(textures, camera);
+    player.draw(textures, camera, walls);
+    draw_icon(*kind, textures, wall, floors);
 }

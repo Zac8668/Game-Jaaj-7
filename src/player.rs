@@ -58,7 +58,7 @@ impl Player {
                 animations[0].width as f32,
                 size * animations[0].height as f32,
             ],
-            dir: vec![0, 0]
+            dir: vec![0, 0],
         }
     }
 
@@ -228,11 +228,11 @@ impl Player {
 }
 
 pub struct AnimatedSprite {
-    animations: Vec<Animation>,
-    cur_animation: usize,
-    dur: f32,
-    time: f32,
-    playing: bool,
+    pub animations: Vec<Animation>,
+    pub cur_animation: usize,
+    pub dur: f32,
+    pub time: f32,
+    pub playing: bool,
 }
 
 impl AnimatedSprite {
@@ -265,13 +265,13 @@ impl AnimatedSprite {
 }
 
 #[derive(Clone)]
-struct Animation {
-    texture: Texture2D,
-    width: usize,
-    height: usize,
-    frames: usize,
-    cur_frame: usize,
-    rect: Rect,
+pub struct Animation {
+    pub texture: Texture2D,
+    pub width: usize,
+    pub height: usize,
+    pub frames: usize,
+    pub cur_frame: usize,
+    pub rect: Rect,
 }
 
 impl Animation {
