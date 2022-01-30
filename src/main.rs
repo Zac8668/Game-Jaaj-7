@@ -110,7 +110,7 @@ fn menu(textures: &Textures, scene: &mut i32, exit: &mut bool) {
     );
 
     if new_in && is_mouse_button_pressed(MouseButton::Left) {
-        *scene = 1;
+        *scene += 1;
     } else if exit_in && is_mouse_button_pressed(MouseButton::Left) {
         *exit = true;
     }
