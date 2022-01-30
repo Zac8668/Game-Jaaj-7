@@ -199,7 +199,7 @@ fn in_game(
     player.update(camera, walls);
     enemies.update(camera, walls);
     floors.update();
-    camera.update(player);
+    //camera.update(player);
 
     floors.draw(textures, camera);
     walls.draw(textures, camera);
