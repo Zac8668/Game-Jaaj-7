@@ -23,7 +23,7 @@ impl History {
             ],
             cur: 0,
             time: 0.,
-            on_time: 6.,
+            on_time: 10.,
             color: WHITE,
             color_sub: 0.01,
             change_color: 0.2,
