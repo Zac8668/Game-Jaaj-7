@@ -192,7 +192,7 @@ impl Player {
         }
     }
 
-    pub fn movement(&mut self, camera: &mut Camera, walls: &Map) {
+    pub fn movement(&mut self, camera: &mut Camera, walls: &Map, floors: &Map) {
         let x = is_key_down(KeyCode::D) as i8 + -(is_key_down(KeyCode::A) as i8);
         let y = is_key_down(KeyCode::S) as i8 + -(is_key_down(KeyCode::W) as i8);
         self.dir = vec![x, y];
@@ -228,7 +228,9 @@ impl Player {
 
             in_x = x1 < walls.width
                 && ((y1 < walls.height && walls.vec[y1][x1].kind != 0)
-                    || (y2 < walls.height && walls.vec[y2][x1].kind != 0));
+                    || (y2 < walls.height && walls.vec[y2][x1].kind != 0)
+                    || (y1 < floors.height && (floors.vec[y1][x1].kind == 7 || floors.vec[y1][x1].kind == 6))
+                    || (y2 < floors.height && (floors.vec[y2][x1].kind == 7 || floors.vec[y2][x1].kind == 6)));
 
             let next_y = self.pos.y + y as f32 * speed + if y > 0 { size[1] } else { 0. };
             let in_y: bool;
@@ -238,7 +240,9 @@ impl Player {
 
             in_y = y1 < walls.height
                 && ((x1 < walls.width && walls.vec[y1][x1].kind != 0)
-                    || (x2 < walls.width && walls.vec[y1][x2].kind != 0));
+                    || (x2 < walls.width && walls.vec[y1][x2].kind != 0)
+                    || (x1 < floors.width && (floors.vec[y1][x1].kind == 7 || floors.vec[y1][x1].kind == 6))
+                    || (x2 < floors.width && (floors.vec[y1][x2].kind == 7 || floors.vec[y1][x2].kind == 6)));
 
             if !in_x {
                 self.pos.x += x as f32 * speed;
@@ -253,12 +257,12 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self, camera: &mut Camera, walls: &Map) {
+    pub fn update(&mut self, camera: &mut Camera, walls: &Map, floors: &Map) {
         self.real_size = vec![
             self.sprite.animations[self.sprite.cur_animation].width as f32,
             self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
         ];
-        self.movement(camera, walls);
+        self.movement(camera, walls, floors);
         self.sprite.update();
         if is_key_down(KeyCode::B)
             && self.sword_sprite.playing
