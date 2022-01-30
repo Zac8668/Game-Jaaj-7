@@ -24,7 +24,8 @@ pub struct Map {
     pub height: usize,
     pub size: f32,
     pub wall: bool,
-    pub water: Vec<AnimatedSprite>,
+    pub animated: Vec<AnimatedSprite>,
+    pub chest: AnimatedSprite,
 }
 
 impl Map {
@@ -71,13 +72,35 @@ impl Map {
             playing: true,
             time: 0.,
         };
+
+        let chest = Animation {
+            cur_frame: 0,
+            frames: 5,
+            height: 25,
+            width: 25,
+            texture: textures.chest_open,
+            rect: Rect {
+                x: 0.,
+                y: 0.,
+                w: 25.,
+                h: 25.,
+            },
+        };
+        let chest = AnimatedSprite {
+            animations: vec![chest],
+            cur_animation: 0,
+            dur: 0.3,
+            playing: true,
+            time: 0.,
+        };
         Map {
             vec,
             width,
             height,
             size,
             wall,
-            water: vec![water_1, water_2],
+            animated: vec![water_1, water_2],
+            chest,
         }
     }
 
@@ -137,13 +160,35 @@ impl Map {
             playing: true,
             time: 0.,
         };
+
+        let chest = Animation {
+            cur_frame: 0,
+            frames: 5,
+            height: 25,
+            width: 25,
+            texture: textures.chest_open,
+            rect: Rect {
+                x: 0.,
+                y: 0.,
+                w: 25.,
+                h: 25.,
+            },
+        };
+        let chest = AnimatedSprite {
+            animations: vec![chest],
+            cur_animation: 0,
+            dur: 0.3,
+            playing: true,
+            time: 0.,
+        };
         Map {
             width: vec[0].len(),
             height: vec.len(),
             vec,
             size,
             wall,
-            water: vec![water_1, water_2],
+            animated: vec![water_1, water_2],
+            chest,
         }
     }
 
@@ -189,6 +234,30 @@ impl Map {
                         WHITE,
                         params,
                     );
+                } else if self.wall {
+                    let kind = (tile.kind - n_walls) as usize;
+                    if kind == 0 {
+                        let pos = Vec2::new(x as f32 * self.size, y as f32 * self.size);
+                        self.chest.draw(&pos, &3.6, &false, camera);
+                    } else if kind == 1 {
+                        let size = 15. * 4.;
+                        let pos = Vec2::new(x as f32 * self.size + size / 4., y as f32 * self.size - size / 1.9);
+                        let params = DrawTextureParams {
+                            dest_size: Some(macroquad::prelude::Vec2::new(
+                                size * camera.zoom,
+                                size * 1.9 * camera.zoom,
+                            )),
+                            ..Default::default()
+                        };
+
+                        draw_texture_ex(
+                            textures.statue,
+                            pos.x * camera.zoom + camera.pos.x,
+                            pos.y * camera.zoom + camera.pos.y,
+                            WHITE,
+                            params,
+                        );
+                    }
                 } else if !self.wall && tile.kind < n_floors {
                     let params = DrawTextureParams {
                         dest_size: Some(macroquad::prelude::Vec2::new(
@@ -209,9 +278,9 @@ impl Map {
                 } else if !self.wall {
                     let kind = (tile.kind - n_floors) as usize;
 
-                    if kind < self.water.len() {
+                    if kind < self.animated.len() {
                         let pos = Vec2::new(x as f32 * self.size, y as f32 * self.size);
-                        self.water[kind].draw(&pos, &6., &false, camera);
+                        self.animated[kind].draw(&pos, &6., &false, camera);
                     }
                 }
             }
@@ -219,7 +288,9 @@ impl Map {
     }
 
     pub fn update(&mut self) {
-        self.water[0].update();
-        self.water[1].update();
+        for sprite in &mut self.animated {
+            sprite.update();
+        }
+        self.chest.update();
     }
 }
