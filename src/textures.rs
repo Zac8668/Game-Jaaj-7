@@ -17,6 +17,8 @@ pub struct Textures {
     pub buf_idle: Texture2D,
     pub buf_parando: Texture2D,
     pub sword_attack: Texture2D,
+    pub chest_open: Texture2D,
+    pub statue: Texture2D,
 }
 
 impl Textures {
@@ -59,6 +61,10 @@ impl Textures {
             .await
             .unwrap();
         sword_attack.set_filter(filter);
+        let chest_open = load_texture("assets/tiles/chest_open.png").await.unwrap();
+        chest_open.set_filter(filter);
+        let statue = load_texture("assets/tiles/statue.png").await.unwrap();
+        statue.set_filter(filter);
 
         Textures {
             player_idle,
@@ -77,6 +83,8 @@ impl Textures {
             buf_idle,
             buf_parando,
             sword_attack,
+            chest_open,
+            statue,
         }
     }
 }

@@ -1,5 +1,6 @@
 use macroquad::prelude::{
-    draw_texture_ex, get_frame_time, is_key_down, DrawTextureParams, KeyCode, Rect, WHITE, is_key_pressed,
+    draw_texture_ex, get_frame_time, is_key_down, is_key_pressed, DrawTextureParams, KeyCode, Rect,
+    WHITE,
 };
 
 use crate::animation::*;
@@ -89,6 +90,7 @@ impl Player {
             ((self.pos.x / walls.size) as usize - 1),
             (((self.pos.y + size) / walls.size) as usize - 1),
         ];
+        let n_walls = textures.walls.width() / 15.;
 
         //draw walls close to player
         for y in 0..3 {
@@ -107,14 +109,15 @@ impl Player {
                     source: Some(Rect::new(kind * 15., 12., 15., 12.)),
                     ..Default::default()
                 };
-
-                draw_texture_ex(
-                    textures.walls,
-                    (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
-                    ((pos[1] + y) as f32 * walls.size + 3. * 6.) * camera.zoom + camera.pos.y,
-                    WHITE,
-                    params2,
-                );
+                if kind < n_walls {
+                    draw_texture_ex(
+                        textures.walls,
+                        (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
+                        ((pos[1] + y) as f32 * walls.size + 3. * 6.) * camera.zoom + camera.pos.y,
+                        WHITE,
+                        params2,
+                    );
+                }
             }
         }
 
@@ -155,14 +158,15 @@ impl Player {
                     source: Some(Rect::new(kind * 15., 0., 15., 12.)),
                     ..Default::default()
                 };
-
-                draw_texture_ex(
-                    textures.walls,
-                    (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
-                    ((pos[1] + y) as f32 * walls.size - 9. * 6.) * camera.zoom + camera.pos.y,
-                    WHITE,
-                    params1,
-                );
+                if kind < n_walls {
+                    draw_texture_ex(
+                        textures.walls,
+                        (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
+                        ((pos[1] + y) as f32 * walls.size - 9. * 6.) * camera.zoom + camera.pos.y,
+                        WHITE,
+                        params1,
+                    );
+                }
 
                 if kind2 != 0. {
                     let params1 = DrawTextureParams {
@@ -173,15 +177,16 @@ impl Player {
                         source: Some(Rect::new(kind2 * 15., 0., 15., 12.)),
                         ..Default::default()
                     };
-
-                    draw_texture_ex(
-                        textures.walls,
-                        (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
-                        ((pos[1] + y) as f32 * walls.size - 9. * 6. + walls.size) * camera.zoom
-                            + camera.pos.y,
-                        WHITE,
-                        params1,
-                    );
+                    if kind2 < n_walls {
+                        draw_texture_ex(
+                            textures.walls,
+                            (pos[0] + x) as f32 * walls.size * camera.zoom + camera.pos.x,
+                            ((pos[1] + y) as f32 * walls.size - 9. * 6. + walls.size) * camera.zoom
+                                + camera.pos.y,
+                            WHITE,
+                            params1,
+                        );
+                    }
                 }
             }
         }
@@ -255,7 +260,10 @@ impl Player {
         ];
         self.movement(camera, walls);
         self.sprite.update();
-        if is_key_down(KeyCode::B) && self.sword_sprite.playing && self.sword_sprite.animations[0].cur_frame == 0 {
+        if is_key_down(KeyCode::B)
+            && self.sword_sprite.playing
+            && self.sword_sprite.animations[0].cur_frame == 0
+        {
             self.sword_sprite.playing = false;
         } else if is_key_pressed(KeyCode::B) {
             self.sword_sprite.playing = true;

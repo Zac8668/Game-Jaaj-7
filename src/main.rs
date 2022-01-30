@@ -143,10 +143,10 @@ fn edit_map(
         (textures.floors.width() / (map.size / 6.)) as i8
     };
 
-    if *kind > n + 1 {
+    if *kind > n + 2 {
         *kind = 1;
     } else if *kind < 1 {
-        *kind = n + 1;
+        *kind = n + 2;
     }
 }
 
@@ -160,14 +160,14 @@ fn draw_icon(kind: i8, textures: &Textures, wall: &bool, floor: &Map) {
         draw_texture_ex(textures.walls, 10., 10., WHITE, params);
     } else {
         let n = (kind - (textures.floors.width() / 15.) as i8) as usize;
-        if n < floor.water.len() {
+        if n < floor.animated.len() {
             let params = DrawTextureParams {
                 dest_size: Some(macroquad::prelude::Vec2::new(30., 30.)),
                 source: Some(Rect::new(n as f32 * 15., 0., 15., 15.)),
                 ..Default::default()
             };
             draw_texture_ex(
-                floor.water[n].animations[0].texture,
+                floor.animated[n].animations[0].texture,
                 10.,
                 10.,
                 WHITE,
