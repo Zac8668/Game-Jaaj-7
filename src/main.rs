@@ -12,6 +12,8 @@ use camera::Camera;
 mod animation;
 mod enemies;
 use enemies::Buffalo;
+mod history;
+use history::*;
 
 #[macroquad::main("GameJaaj7")]
 async fn main() {
@@ -20,7 +22,21 @@ async fn main() {
     let mut floors =
         Map::from_file("assets/world-data/floors.txt", 15. * 6., false, &textures).await;
     let mut walls = Map::from_file("assets/world-data/walls.txt", 15. * 6., true, &textures).await;
-    let mut player = Player::new(Vec2::new(0., 0.), &textures, 2., 8.);
+    let mut player = Player::new(
+        Vec2::new(
+            14. * walls.size + walls.size / 2.,
+            12. * walls.size + walls.size / 2.,
+        ),
+        &textures,
+        2.,
+        8.,
+    );
+    let real_size = vec![
+        player.sprite.animations[player.sprite.cur_animation].width as f32,
+        player.size * player.sprite.animations[player.sprite.cur_animation].height as f32,
+    ];
+    player.pos.x -= real_size[0];
+    player.pos.y -= real_size[1] / 2.;
     let mut buff = Buffalo::new(Vec2::new(0., 0.), &textures, 2., 8.);
     let mut camera = Camera {
         pos: Vec2::new(90., 90.),
@@ -33,10 +49,13 @@ async fn main() {
     let mut scene = 0;
     let mut exit = false;
 
+    let mut history = History::new(&textures);
+
     loop {
         match scene {
-            0 => menu(&textures, &mut scene, &mut exit),
-            1 => in_game(
+            0 => history.tick(&mut scene),
+            1 => menu(&textures, &mut scene, &mut exit),
+            2 => in_game(
                 &mut kind,
                 &mut walls,
                 &mut floors,
@@ -200,7 +219,6 @@ fn in_game(
     enemies.update(camera, walls);
     floors.update();
     camera.update(player);
-
     floors.draw(textures, camera);
     walls.draw(textures, camera);
     enemies.draw(textures, camera, walls);

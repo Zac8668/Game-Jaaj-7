@@ -229,8 +229,10 @@ impl Player {
             in_x = x1 < walls.width
                 && ((y1 < walls.height && walls.vec[y1][x1].kind != 0)
                     || (y2 < walls.height && walls.vec[y2][x1].kind != 0)
-                    || (y1 < floors.height && (floors.vec[y1][x1].kind == 7 || floors.vec[y1][x1].kind == 6))
-                    || (y2 < floors.height && (floors.vec[y2][x1].kind == 7 || floors.vec[y2][x1].kind == 6)));
+                    || (y1 < floors.height
+                        && (floors.vec[y1][x1].kind == 7 || floors.vec[y1][x1].kind == 6))
+                    || (y2 < floors.height
+                        && (floors.vec[y2][x1].kind == 7 || floors.vec[y2][x1].kind == 6)));
 
             let next_y = self.pos.y + y as f32 * speed + if y > 0 { size[1] } else { 0. };
             let in_y: bool;
@@ -241,8 +243,10 @@ impl Player {
             in_y = y1 < walls.height
                 && ((x1 < walls.width && walls.vec[y1][x1].kind != 0)
                     || (x2 < walls.width && walls.vec[y1][x2].kind != 0)
-                    || (x1 < floors.width && (floors.vec[y1][x1].kind == 7 || floors.vec[y1][x1].kind == 6))
-                    || (x2 < floors.width && (floors.vec[y1][x2].kind == 7 || floors.vec[y1][x2].kind == 6)));
+                    || (x1 < floors.width
+                        && (floors.vec[y1][x1].kind == 7 || floors.vec[y1][x1].kind == 6))
+                    || (x2 < floors.width
+                        && (floors.vec[y1][x2].kind == 7 || floors.vec[y1][x2].kind == 6)));
 
             if !in_x {
                 self.pos.x += x as f32 * speed;
