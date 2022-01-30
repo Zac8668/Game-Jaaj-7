@@ -13,6 +13,10 @@ pub struct Textures {
     pub quadrinho_1: Texture2D,
     pub quadrinho_2: Texture2D,
     pub quadrinho_3: Texture2D,
+    pub buf_attack: Texture2D,
+    pub buf_idle: Texture2D,
+    pub buf_parando: Texture2D,
+    pub sword_attack: Texture2D,
 }
 
 impl Textures {
@@ -42,6 +46,20 @@ impl Textures {
         let quadrinho_2 = load_texture("assets/menu/quadrinho_2.png").await.unwrap();
         let quadrinho_3 = load_texture("assets/menu/quadrinho_3.png").await.unwrap();
 
+        let buf_attack = load_texture("assets/enemies/buf_attack.png").await.unwrap();
+        buf_attack.set_filter(filter);
+        let buf_idle = load_texture("assets/enemies/buf_idle.png").await.unwrap();
+        buf_idle.set_filter(filter);
+        let buf_parando = load_texture("assets/enemies/buf_parando.png")
+            .await
+            .unwrap();
+        buf_parando.set_filter(filter);
+
+        let sword_attack = load_texture("assets/player/sword_attack.png")
+            .await
+            .unwrap();
+        sword_attack.set_filter(filter);
+
         Textures {
             player_idle,
             player_walk,
@@ -55,6 +73,10 @@ impl Textures {
             quadrinho_1,
             quadrinho_2,
             quadrinho_3,
+            buf_attack,
+            buf_idle,
+            buf_parando,
+            sword_attack,
         }
     }
 }

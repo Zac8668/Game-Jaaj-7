@@ -2,9 +2,8 @@ use macroquad::prelude::{draw_texture_ex, DrawTextureParams, Rect, WHITE};
 use std::fs;
 use std::io::Write;
 
+use crate::animation::*;
 use crate::camera::Camera;
-use crate::player::AnimatedSprite;
-use crate::player::Animation;
 use crate::textures::Textures;
 use crate::vecs::Vec2;
 

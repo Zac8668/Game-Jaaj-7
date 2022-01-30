@@ -9,6 +9,9 @@ mod map;
 use map::*;
 mod camera;
 use camera::Camera;
+mod animation;
+mod enemies;
+use enemies::Buffalo;
 
 #[macroquad::main("GameJaaj7")]
 async fn main() {
@@ -18,11 +21,12 @@ async fn main() {
         Map::from_file("assets/world-data/floors.txt", 15. * 6., false, &textures).await;
     let mut walls = Map::from_file("assets/world-data/walls.txt", 15. * 6., true, &textures).await;
     let mut player = Player::new(Vec2::new(0., 0.), &textures, 2., 8.);
+    let mut buff = Buffalo::new(Vec2::new(0., 0.), &textures, 2., 8.);
     let mut camera = Camera {
         pos: Vec2::new(90., 90.),
         zoom: 1.,
         speed: Vec2::new(0., 0.),
-        speed_limit: Vec2::new(50., 20.)
+        speed_limit: Vec2::new(50., 20.),
     };
     let mut kind = 1;
     let mut wall = false;
@@ -40,6 +44,7 @@ async fn main() {
                 &textures,
                 &mut wall,
                 &mut player,
+                &mut buff,
             ),
             _ => (),
         };
@@ -187,15 +192,19 @@ fn in_game(
     textures: &Textures,
     wall: &mut bool,
     player: &mut Player,
+    enemies: &mut Buffalo,
 ) {
     clear_background(DARKGRAY);
     edit_map(kind, walls, floors, camera, textures, wall);
     player.update(camera, walls);
+    enemies.update(camera, walls);
     floors.update();
     camera.update(player);
 
     floors.draw(textures, camera);
     walls.draw(textures, camera);
+    enemies.draw(textures, camera, walls);
     player.draw(textures, camera, walls);
     draw_icon(*kind, textures, wall, floors);
+    draw_text(&get_fps().to_string(), 10., 80., 40., WHITE);
 }

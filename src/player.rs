@@ -1,8 +1,8 @@
 use macroquad::prelude::{
-    draw_texture_ex, get_frame_time, is_key_down, DrawTextureParams, KeyCode, Rect, Texture2D,
-    WHITE,
+    draw_texture_ex, get_frame_time, is_key_down, DrawTextureParams, KeyCode, Rect, WHITE, is_key_pressed,
 };
 
+use crate::animation::*;
 use crate::camera::Camera;
 use crate::map::*;
 use crate::textures::Textures;
@@ -16,6 +16,8 @@ pub struct Player {
     pub flipped: bool,
     pub real_size: Vec<f32>,
     pub dir: Vec<i8>,
+    pub sword_sprite: AnimatedSprite,
+    pub attacking: bool,
 }
 
 impl Player {
@@ -48,6 +50,23 @@ impl Player {
             time: 0.,
         };
 
+        let sword_attack = Animation {
+            cur_frame: 0,
+            frames: 4,
+            width: 16,
+            height: 32,
+            rect: Rect::new(0., 0., 16., 32.),
+            texture: textures.sword_attack,
+        };
+        let sword_animations = vec![sword_attack];
+        let sword_sprite = AnimatedSprite {
+            animations: sword_animations,
+            cur_animation: 0,
+            dur: 0.08,
+            playing: true,
+            time: 0.,
+        };
+
         Self {
             pos,
             size,
@@ -59,6 +78,8 @@ impl Player {
                 size * animations[0].height as f32,
             ],
             dir: vec![0, 0],
+            sword_sprite,
+            attacking: true,
         }
     }
 
@@ -98,8 +119,18 @@ impl Player {
         }
 
         //draw player
+        let sword_pos = Vec2::new(
+            if self.flipped {
+                self.pos.x - self.real_size[0]
+            } else {
+                self.pos.x + self.real_size[0] * 2. - 6.
+            },
+            self.pos.y + 18.,
+        );
         self.sprite
             .draw(&self.pos, &self.size, &self.flipped, camera);
+        self.sword_sprite
+            .draw(&sword_pos, &2., &self.flipped, camera);
 
         //draw walls close to player
         for y in 0..3 {
@@ -160,7 +191,7 @@ impl Player {
         let x = is_key_down(KeyCode::D) as i8 + -(is_key_down(KeyCode::A) as i8);
         let y = is_key_down(KeyCode::S) as i8 + -(is_key_down(KeyCode::W) as i8);
         self.dir = vec![x, y];
-        let mut speed = self.speed;
+        let mut speed = self.speed * get_frame_time() * 60.;
 
         //fix double speed when moving diagonally
         if x.abs() > 0 && y.abs() > 0 {
@@ -224,72 +255,11 @@ impl Player {
         ];
         self.movement(camera, walls);
         self.sprite.update();
-    }
-}
-
-pub struct AnimatedSprite {
-    pub animations: Vec<Animation>,
-    pub cur_animation: usize,
-    pub dur: f32,
-    pub time: f32,
-    pub playing: bool,
-}
-
-impl AnimatedSprite {
-    pub fn update(&mut self) {
-        self.time += get_frame_time();
-        self.animations[self.cur_animation].update(&mut self.time, &self.dur, &self.playing);
-    }
-
-    pub fn draw(&self, pos: &Vec2, size: &f32, flipped: &bool, camera: &Camera) {
-        let animation = &self.animations[self.cur_animation];
-
-        let params = DrawTextureParams {
-            source: Some(animation.rect),
-            dest_size: Some(macroquad::prelude::Vec2::new(
-                animation.width as f32 * size * camera.zoom,
-                animation.height as f32 * size * camera.zoom,
-            )),
-            flip_x: *flipped,
-            ..Default::default()
-        };
-
-        draw_texture_ex(
-            animation.texture,
-            pos.x * camera.zoom + camera.pos.x,
-            pos.y * camera.zoom + camera.pos.y,
-            WHITE,
-            params,
-        );
-    }
-}
-
-#[derive(Clone)]
-pub struct Animation {
-    pub texture: Texture2D,
-    pub width: usize,
-    pub height: usize,
-    pub frames: usize,
-    pub cur_frame: usize,
-    pub rect: Rect,
-}
-
-impl Animation {
-    pub fn update(&mut self, time: &mut f32, dur: &f32, playing: &bool) {
-        if *time + get_frame_time() > *dur {
-            *time += get_frame_time() - dur;
-            if *playing {
-                self.cur_frame += 1;
-                if self.cur_frame == self.frames {
-                    self.cur_frame = 0;
-                }
-                self.rect = Rect::new(
-                    (self.cur_frame * self.width) as f32,
-                    0.,
-                    self.width as f32,
-                    self.height as f32,
-                );
-            }
+        if is_key_down(KeyCode::B) && self.sword_sprite.playing && self.sword_sprite.animations[0].cur_frame == 0 {
+            self.sword_sprite.playing = false;
+        } else if is_key_pressed(KeyCode::B) {
+            self.sword_sprite.playing = true;
         }
+        self.sword_sprite.update();
     }
 }
