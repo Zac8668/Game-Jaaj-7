@@ -196,10 +196,10 @@ fn in_game(
 ) {
     clear_background(DARKGRAY);
     edit_map(kind, walls, floors, camera, textures, wall);
-    player.update(camera, walls);
+    player.update(camera, walls, floors);
     enemies.update(camera, walls);
     floors.update();
-    //camera.update(player);
+    camera.update(player);
 
     floors.draw(textures, camera);
     walls.draw(textures, camera);

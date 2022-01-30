@@ -241,7 +241,10 @@ impl Map {
                         self.chest.draw(&pos, &3.6, &false, camera);
                     } else if kind == 1 {
                         let size = 15. * 4.;
-                        let pos = Vec2::new(x as f32 * self.size + size / 4., y as f32 * self.size - size / 1.9);
+                        let pos = Vec2::new(
+                            x as f32 * self.size + size / 4.,
+                            y as f32 * self.size - size / 1.9,
+                        );
                         let params = DrawTextureParams {
                             dest_size: Some(macroquad::prelude::Vec2::new(
                                 size * camera.zoom,
