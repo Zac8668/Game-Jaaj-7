@@ -45,8 +45,7 @@ impl History {
                     self.time = 0.;
                     self.cur += 1;
                 }
-            }
-            else if is_mouse_button_pressed(MouseButton::Left) {
+            } else if is_mouse_button_pressed(MouseButton::Left) {
                 self.time = self.on_time;
             }
         } else {

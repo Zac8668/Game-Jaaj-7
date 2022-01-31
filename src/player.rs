@@ -1,10 +1,11 @@
 use macroquad::prelude::{
-    draw_texture_ex, get_frame_time, is_key_down, is_key_pressed, DrawTextureParams, KeyCode, Rect,
-    WHITE,
+    draw_texture_ex, get_frame_time, is_key_down, is_mouse_button_pressed, DrawTextureParams,
+    KeyCode, MouseButton, Rect, WHITE,
 };
 
 use crate::animation::*;
 use crate::camera::Camera;
+use crate::enemies::Enemies;
 use crate::map::*;
 use crate::textures::Textures;
 use crate::vecs::*;
@@ -19,6 +20,11 @@ pub struct Player {
     pub dir: Vec<i8>,
     pub sword_sprite: AnimatedSprite,
     pub attacking: bool,
+    pub attack: bool,
+    pub sword_hit: Vec<Vec2>,
+    pub hit: Vec<Vec2>,
+    pub shield: bool,
+    pub skill: bool,
 }
 
 impl Player {
@@ -67,6 +73,21 @@ impl Player {
             playing: true,
             time: 0.,
         };
+        let sword_pos = Vec2::new(pos.x + animations[0].width as f32 * 2. + 2., pos.y + 8.);
+        let sword_size = Vec2::new(
+            sword_sprite.animations[0].width as f32 * 2.5,
+            sword_sprite.animations[0].height as f32 * 2.5,
+        );
+
+        let sword_hit = vec![sword_pos, sword_size];
+
+        let hit = vec![
+            pos,
+            Vec2::new(
+                animations[0].width as f32,
+                size * animations[0].height as f32,
+            ),
+        ];
 
         Self {
             pos,
@@ -80,7 +101,12 @@ impl Player {
             ],
             dir: vec![0, 0],
             sword_sprite,
-            attacking: true,
+            attacking: false,
+            attack: false,
+            sword_hit,
+            hit,
+            shield: false,
+            skill: false,
         }
     }
 
@@ -124,16 +150,42 @@ impl Player {
         //draw player
         let sword_pos = Vec2::new(
             if self.flipped {
-                self.pos.x - self.real_size[0]
+                self.pos.x - self.real_size[0] - 16.
             } else {
-                self.pos.x + self.real_size[0] * 2. - 6.
+                self.pos.x + self.real_size[0] * 2. + 2.
             },
-            self.pos.y + 18.,
+            self.pos.y + 8.,
         );
         self.sprite
             .draw(&self.pos, &self.size, &self.flipped, camera);
         self.sword_sprite
-            .draw(&sword_pos, &2., &self.flipped, camera);
+            .draw(&sword_pos, &2.5, &self.flipped, camera);
+        let params = DrawTextureParams {
+            dest_size: Some(macroquad::prelude::vec2(
+                13. * 2. * camera.zoom,
+                20. * 2. * camera.zoom,
+            )),
+            flip_x: self.flipped,
+            ..Default::default()
+        };
+
+        let shield_pos = Vec2::new(
+            if self.flipped {
+                self.pos.x - self.real_size[0] + 28.
+            } else {
+                self.pos.x + self.real_size[0] + textures.shield.width() * 2. - 28.
+            },
+            self.pos.y + 32.,
+        );
+        if self.shield {
+            draw_texture_ex(
+                textures.shield,
+                (shield_pos.x) * camera.zoom + camera.pos.x,
+                (shield_pos.y) * camera.zoom + camera.pos.y,
+                WHITE,
+                params,
+            );
+        }
 
         //draw walls close to player
         for y in 0..3 {
@@ -192,7 +244,7 @@ impl Player {
         }
     }
 
-    pub fn movement(&mut self, camera: &mut Camera, walls: &Map, floors: &Map) {
+    pub fn movement(&mut self, camera: &mut Camera, walls: &mut Map, floors: &Map) {
         let x = is_key_down(KeyCode::D) as i8 + -(is_key_down(KeyCode::A) as i8);
         let y = is_key_down(KeyCode::S) as i8 + -(is_key_down(KeyCode::W) as i8);
         self.dir = vec![x, y];
@@ -234,6 +286,35 @@ impl Player {
                     || (y2 < floors.height
                         && (floors.vec[y2][x1].kind == 7 || floors.vec[y2][x1].kind == 6)));
 
+            let in_door_x = x1 < walls.width
+                && ((y1 < walls.height && walls.vec[y1][x1].kind == 5)
+                    || (y2 < walls.height && walls.vec[y2][x1].kind == 5)
+                    || (y1 < walls.height && walls.vec[y1][x1].kind == 6)
+                    || (y2 < walls.height && walls.vec[y2][x1].kind == 6));
+
+            if in_door_x {
+                walls.vec[y1][x1].kind = 0;
+                walls.vec[y2][x1].kind = 0;
+            }
+
+            let in_chest_x = x1 < walls.width
+                && ((y1 < walls.height && walls.vec[y1][x1].kind == 7)
+                    || (y2 < walls.height && walls.vec[y2][x1].kind == 7));
+
+            if in_chest_x && !self.shield {
+                walls.chest.playing = true;
+                if walls.chest.animations[0].cur_frame == 4 {
+                    self.shield = true;
+                    walls.chest.animations[0].cur_frame = 0;
+                } else if walls.chest.animations[0].cur_frame == 4 && self.shield {
+                    self.skill = true;
+                    walls.chest.playing = false;
+                    println!("lol");
+                }
+            } else {
+                walls.chest.playing = false;
+            }
+
             let next_y = self.pos.y + y as f32 * speed + if y > 0 { size[1] } else { 0. };
             let in_y: bool;
             let y1 = (next_y / walls.size) as usize;
@@ -248,6 +329,35 @@ impl Player {
                     || (x2 < floors.width
                         && (floors.vec[y1][x2].kind == 7 || floors.vec[y1][x2].kind == 6)));
 
+            let in_door_y = y1 < walls.height
+                && ((x1 < walls.width && walls.vec[y1][x1].kind == 5)
+                    || (x2 < walls.width && walls.vec[y1][x2].kind == 5)
+                    || (x1 < walls.width && walls.vec[y1][x1].kind == 6)
+                    || (x2 < walls.width && walls.vec[y1][x2].kind == 6));
+
+            if in_door_y {
+                walls.vec[y1][x1].kind = 0;
+                walls.vec[y1][x2].kind = 0;
+            }
+
+            let in_chest_y = y1 < walls.height
+                && ((x1 < walls.width && walls.vec[y1][x1].kind == 7)
+                    || (x2 < walls.width && walls.vec[y1][x2].kind == 7));
+
+            if in_chest_y && !self.shield {
+                walls.chest.playing = true;
+                if walls.chest.animations[0].cur_frame == 4 {
+                    self.shield = true;
+                    walls.chest.animations[0].cur_frame = 0;
+                } else if walls.chest.animations[0].cur_frame == 4 && self.shield {
+                    self.skill = true;
+                    walls.chest.playing = false;
+                    println!("lol");
+                }
+            } else {
+                walls.chest.playing = false;
+            }
+
             if !in_x {
                 self.pos.x += x as f32 * speed;
             }
@@ -261,21 +371,40 @@ impl Player {
         }
     }
 
-    pub fn update(&mut self, camera: &mut Camera, walls: &Map, floors: &Map) {
+    pub fn update(&mut self, camera: &mut Camera, walls: &mut Map, floors: &Map) {
         self.real_size = vec![
             self.sprite.animations[self.sprite.cur_animation].width as f32,
             self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
         ];
         self.movement(camera, walls, floors);
         self.sprite.update();
-        if is_key_down(KeyCode::B)
-            && self.sword_sprite.playing
-            && self.sword_sprite.animations[0].cur_frame == 0
-        {
-            self.sword_sprite.playing = false;
-        } else if is_key_pressed(KeyCode::B) {
-            self.sword_sprite.playing = true;
+        if is_mouse_button_pressed(MouseButton::Left) {
+            self.attacking = true;
+            self.sword_sprite.animations[0].cur_frame = 1;
         }
-        self.sword_sprite.update();
+        if self.attacking {
+            self.sword_sprite.update();
+        }
+
+        if self.attacking && self.sword_sprite.animations[0].cur_frame == 0 {
+            self.attacking = false;
+        }
+        let sword_pos = Vec2::new(
+            self.pos.x + self.sword_sprite.animations[0].width as f32 * 2. + 2.,
+            self.pos.y + 8.,
+        );
+        let sword_size = Vec2::new(
+            self.sword_sprite.animations[0].width as f32 * 2.5,
+            self.sword_sprite.animations[0].height as f32 * 2.5,
+        );
+
+        self.sword_hit = vec![sword_pos, sword_size];
+        self.hit = vec![
+            self.pos,
+            Vec2::new(
+                self.sprite.animations[self.sprite.cur_animation].width as f32,
+                self.size * self.sprite.animations[self.sprite.cur_animation].height as f32,
+            ),
+        ];
     }
 }

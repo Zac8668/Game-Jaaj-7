@@ -14,11 +14,14 @@ pub struct Textures {
     pub quadrinho_2: Texture2D,
     pub quadrinho_3: Texture2D,
     pub buf_attack: Texture2D,
-    pub buf_idle: Texture2D,
-    pub buf_parando: Texture2D,
+    pub coruja_idle: Texture2D,
+    pub coruja_attack: Texture2D,
     pub sword_attack: Texture2D,
     pub chest_open: Texture2D,
     pub statue: Texture2D,
+    pub shield: Texture2D,
+    pub coruja_hurt: Texture2D,
+    pub coruja_ball: Texture2D,
 }
 
 impl Textures {
@@ -50,12 +53,14 @@ impl Textures {
 
         let buf_attack = load_texture("assets/enemies/buf_attack.png").await.unwrap();
         buf_attack.set_filter(filter);
-        let buf_idle = load_texture("assets/enemies/buf_idle.png").await.unwrap();
-        buf_idle.set_filter(filter);
-        let buf_parando = load_texture("assets/enemies/buf_parando.png")
+        let coruja_idle = load_texture("assets/enemies/coruja_idle.png")
             .await
             .unwrap();
-        buf_parando.set_filter(filter);
+        coruja_idle.set_filter(filter);
+        let coruja_attack = load_texture("assets/enemies/coruja_attack.png")
+            .await
+            .unwrap();
+        coruja_attack.set_filter(filter);
 
         let sword_attack = load_texture("assets/player/sword_attack.png")
             .await
@@ -65,6 +70,16 @@ impl Textures {
         chest_open.set_filter(filter);
         let statue = load_texture("assets/tiles/statue.png").await.unwrap();
         statue.set_filter(filter);
+        let shield = load_texture("assets/player/escudo.png").await.unwrap();
+        shield.set_filter(filter);
+        let coruja_hurt = load_texture("assets/enemies/coruja_hurt.png")
+            .await
+            .unwrap();
+        coruja_hurt.set_filter(filter);
+        let coruja_ball = load_texture("assets/enemies/cristal_ball.png")
+            .await
+            .unwrap();
+        coruja_ball.set_filter(filter);
 
         Textures {
             player_idle,
@@ -80,11 +95,14 @@ impl Textures {
             quadrinho_2,
             quadrinho_3,
             buf_attack,
-            buf_idle,
-            buf_parando,
+            coruja_idle,
+            coruja_attack,
             sword_attack,
             chest_open,
             statue,
+            shield,
+            coruja_hurt,
+            coruja_ball,
         }
     }
 }

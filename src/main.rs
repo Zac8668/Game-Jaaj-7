@@ -10,14 +10,23 @@ use map::*;
 mod camera;
 use camera::Camera;
 mod animation;
+mod coruja;
+use coruja::Coruja;
 mod enemies;
-use enemies::Buffalo;
+use enemies::*;
 mod history;
 use history::*;
 
 #[macroquad::main("GameJaaj7")]
 async fn main() {
-    //add loading screen here
+    let back = load_texture("assets/menu/loading.png").await.unwrap();
+    let text = load_texture("assets/menu/loading_textures.png")
+        .await
+        .unwrap();
+
+    draw_texture(back, 0., 0., WHITE);
+    draw_texture(text, 0., 0., WHITE);
+
     let textures = Textures::get().await;
     let mut floors =
         Map::from_file("assets/world-data/floors.txt", 15. * 6., false, &textures).await;
@@ -37,7 +46,17 @@ async fn main() {
     ];
     player.pos.x -= real_size[0];
     player.pos.y -= real_size[1] / 2.;
-    let mut buff = Buffalo::new(Vec2::new(0., 0.), &textures, 2., 8.);
+    let mut enemies = Enemies {
+        corujas: vec![Coruja::new(
+            Vec2::new(
+                14. * walls.size + walls.size / 2.,
+                12. * walls.size + walls.size / 2.,
+            ),
+            &textures,
+            2.,
+            8.,
+        )],
+    };
     let mut camera = Camera {
         pos: Vec2::new(90., 90.),
         zoom: 1.,
@@ -50,6 +69,7 @@ async fn main() {
     let mut exit = false;
 
     let mut history = History::new(&textures);
+    let mut debug = false;
 
     loop {
         match scene {
@@ -63,7 +83,8 @@ async fn main() {
                 &textures,
                 &mut wall,
                 &mut player,
-                &mut buff,
+                &mut enemies,
+                &mut debug,
             ),
             _ => (),
         };
@@ -211,18 +232,26 @@ fn in_game(
     textures: &Textures,
     wall: &mut bool,
     player: &mut Player,
-    enemies: &mut Buffalo,
+    enemies: &mut Enemies,
+    debug: &mut bool,
 ) {
     clear_background(DARKGRAY);
-    edit_map(kind, walls, floors, camera, textures, wall);
+
     player.update(camera, walls, floors);
-    enemies.update(camera, walls);
+    enemies.update(walls, floors, player, textures);
     floors.update();
     camera.update(player);
+    walls.update();
     floors.draw(textures, camera);
     walls.draw(textures, camera);
     enemies.draw(textures, camera, walls);
     player.draw(textures, camera, walls);
-    draw_icon(*kind, textures, wall, floors);
-    draw_text(&get_fps().to_string(), 10., 80., 40., WHITE);
+    if *debug {
+        edit_map(kind, walls, floors, camera, textures, wall);
+        draw_icon(*kind, textures, wall, floors);
+        draw_text(&get_fps().to_string(), 10., 80., 40., WHITE);
+    }
+    if is_key_pressed(KeyCode::L) {
+        *debug = !*debug;
+    }
 }

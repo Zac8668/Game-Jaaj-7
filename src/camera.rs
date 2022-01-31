@@ -61,10 +61,8 @@ impl Camera {
         }
 
         self.pos = Vec2::new(
-            (-player.pos.x - player.real_size[0]) * self.zoom + screen_width() / 2. + self.speed.x,
-            (-player.pos.y - player.real_size[1] / 2.) * self.zoom
-                + screen_height() / 2.
-                + self.speed.y,
+            (-player.pos.x - player.real_size[0]) + screen_width() / 2. + self.speed.x,
+            (-player.pos.y - player.real_size[1] / 2.) + screen_height() / 2. + self.speed.y,
         );
     }
 }

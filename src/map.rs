@@ -90,7 +90,7 @@ impl Map {
             animations: vec![chest],
             cur_animation: 0,
             dur: 0.3,
-            playing: true,
+            playing: false,
             time: 0.,
         };
         Map {
@@ -178,7 +178,7 @@ impl Map {
             animations: vec![chest],
             cur_animation: 0,
             dur: 0.3,
-            playing: true,
+            playing: false,
             time: 0.,
         };
         Map {
@@ -294,6 +294,7 @@ impl Map {
         for sprite in &mut self.animated {
             sprite.update();
         }
+
         self.chest.update();
     }
 }
